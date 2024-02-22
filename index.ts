@@ -1,5 +1,5 @@
 /*
- * This code solves the time to reheat a certain food
+ * This code calculates the time to reheat selected foods
  *
  * @author  Andi Cucka
  * @version 1.0
@@ -8,30 +8,39 @@
 
 import { createPrompt } from 'bun-promptx';
 
-// constants
-const soupTime: number = 105;
-const pizzaTime: number = 45;
-const subTime: number = 60;
+// Constants
+const foodTimes: { [key: string]: number } = {
+    "sub": 60,
+    "pizza": 45,
+    "soup": 105
+};
 
 try {
-    // input
-    const food = createPrompt("Enter a food(sub, pizza, soup): ");
-    let foodString: string = food.value.toLowerCase();
-
-    // error checking
-    switch (foodString) {
-        case "sub":
-            console.log(`Time to reheat ${foodString}: ${subTime} seconds`);
-            break;
-        case "pizza":
-            console.log(`Time to reheat ${foodString}: ${pizzaTime} seconds`);
-            break;
-        case "soup":
-            console.log(`Time to reheat ${foodString}: ${soupTime} seconds`);
-            break;
-        default:
-            throw new Error("Invalid food choice");
+    // Input
+    const foodSelections: string[] = [];
+    for (let foodIndex = 0; foodIndex < 3; foodIndex++) {
+        const food = createPrompt(`Enter food ${foodIndex + 1} (sub, pizza, soup), or leave empty to finish: `);
+        if (food.value === "") break; // Break if input is empty
+        foodSelections.push(food.value.toLowerCase());
     }
+
+    // Calculate total time
+    let totalTimeSeconds: number = 0;
+    foodSelections.forEach(food => {
+        if (food in foodTimes) {
+            totalTimeSeconds += foodTimes[food];
+        } else {
+            throw new Error(`Invalid food choice: ${food}`);
+        }
+    });
+
+    // Convert total time to minutes and seconds
+    const totalTimeMinutes: number = Math.floor(totalTimeSeconds / 60);
+    const remainingSeconds: number = totalTimeSeconds % 60;
+
+    // Output
+    console.log(`Total reheating time: ${totalTimeMinutes} minutes ${remainingSeconds} seconds`);
+
 } catch (error) {
     console.error(error.message);
 }
