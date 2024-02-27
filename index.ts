@@ -1,46 +1,51 @@
 /*
- * This code calculates the time to reheat selected foods
+ * This is a program that calculates the total cook time based on
+ * the lunch item and number of lunch items
  *
  * @author  Andi Cucka
  * @version 1.0
- * @since   2024-02-20
+ * @since   2024-02-22
  */
 
-import { createPrompt } from 'bun-promptx';
+import { createPrompt } from 'bun-promptx'
+// constants & variables
+const subCookTime = 60
+const pizzaCookTime = 45
+const soupCookTime = 105
+let totalCookTime = 0
+let validInput = true
 
-// Constants
-const foodTimes: { [key: string]: number } = {
-    "sub": 60,
-    "pizza": 45,
-    "soup": 105
-};
+// input
+const lunchType = createPrompt("Are you heating sub, pizza, or soup?(lowercase): ")
+const lunchTypeString = lunchType.value
+const lunchAmount = createPrompt("How many are you heating?(Max 3): ")
+const lunchAmountInt = parseInt(lunchAmount.value || "-1")
 
-try {
-    // Input
-    const foodSelections: string[] = [];
-    for (let foodIndex = 0; foodIndex < 3; foodIndex++) {
-        const food = createPrompt(`Enter food ${foodIndex + 1} (sub, pizza, soup), or leave empty to finish: `);
-        if (food.value === "") break; // Break if input is empty
-        foodSelections.push(food.value.toLowerCase());
-    }
-
-    // Calculate total time
-    let totalTimeSeconds: number = 0;
-    foodSelections.forEach(food => {
-        if (food in foodTimes) {
-            totalTimeSeconds += foodTimes[food];
-        } else {
-            throw new Error(`Invalid food choice: ${food}`);
-        }
-    });
-
-    // Convert total time to minutes and seconds
-    const totalTimeMinutes: number = Math.floor(totalTimeSeconds / 60);
-    const remainingSeconds: number = totalTimeSeconds % 60;
-
-    // Output
-    console.log(`Total reheating time: ${totalTimeMinutes} minutes ${remainingSeconds} seconds`);
-
-} catch (error) {
-    console.error(error.message);
+// error check
+if (isNaN(lunchAmountInt) == true || lunchAmountInt < 0 || lunchAmountInt > 3) {
+  console.log("Invalid input.")
+} else {
+  // process
+  switch (lunchTypeString) {
+  case `sub`:
+    totalCookTime = (subCookTime / 2) + ((subCookTime / 2) * lunchAmountInt)
+    break
+  case `pizza`:
+    totalCookTime = (pizzaCookTime / 2) + ((pizzaCookTime / 2) * lunchAmountInt)
+    break
+  case `soup`:
+    totalCookTime = (soupCookTime / 2) + ((soupCookTime / 2) * lunchAmountInt)
+    break
+  default:
+    console.log("Invalid input.")
+    validInput = false
+    break
+  }
+  if (validInput) {
+    const cookTimeSeconds = totalCookTime % 60
+    const cookTimeMinutes = Math.floor(totalCookTime / 60)
+    console.log(`Total cook time:\n${cookTimeMinutes} minutes, ${cookTimeSeconds} seconds.`)
+  }
 }
+
+console.log("\nDone.")
